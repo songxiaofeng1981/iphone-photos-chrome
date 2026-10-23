@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "iPhone 照片",
+  "version": "0.1.0",
+  "description": "用数据线浏览 iPhone 照片，挑几张导出到 Mac。不走 iCloud，不同步整个相册。",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtfpzcirZNRdFITzEP2uuOxJfCOAqUa80F7TuVDSExm5QVJytyiE5CCul7wTEPsX9loC8lDXriUp9bNHv71mVZXnke5HE692PeJIZpVXqYP25d9FqrvOOJPHO24byxd3ENxLogNtlRQnFc2vumUz8eaxu6N31xoNAa6YYDQVoCh3H3gqvqILVca0I6ZNRZUm+nj5SopmVdGrQc1qURMZSQxAXUzqKAMjW4y0cVfSnzVshalQcgD+LsTgjeX5Gc6PVog03EAxzccLdE4GaG5wuX6V2xlc3vYrozzwlsvLeDfYCbcorcPNfi3deupYud8QnHEPlAfLsd0LLyj4e6ADVFwIDAQAB",
+  "minimum_chrome_version": "116",
+  "permissions": ["nativeMessaging"],
+  "background": { "service_worker": "background.js" },
+  "action": {
+    "default_title": "打开 iPhone 照片",
+    "default_icon": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png" }
+  },
+  "icons": { "16": "icons/icon16.png", "32": "icons/icon32.png", "48": "icons/icon48.png", "128": "icons/icon128.png" }
+}

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iPhone 照片</title>
+<link rel="icon" href="icons/icon32.png">
+<link rel="stylesheet" href="wall.css">
+</head>
+<body>
+<header class="top" id="top">
+  <div class="device" id="device">
+    <span class="phone" aria-hidden="true"></span>
+    <div><strong id="devName">iPhone 照片</strong><small id="devSub">正在启动读取助手</small></div>
+  </div>
+  <div class="modes" id="modes" role="group" aria-label="显示范围" hidden>
+    <button data-mode="today" aria-pressed="true">今天<em id="cntToday"></em></button>
+    <button data-mode="all" aria-pressed="false">全部<em id="cntAll"></em></button>
+  </div>
+  <div class="metric" id="metric"></div>
+  <div class="spacer"></div>
+  <button class="ghost" id="refresh" hidden>刷新</button>
+</header>
+
+<main id="main">
+  <section class="screen" id="screen"></section>
+  <section class="wall" id="wall" hidden>
+    <div id="groups"></div>
+    <div class="endnote" id="endnote"></div>
+    <div class="sentinel" id="sentinel"></div>
+  </section>
+</main>
+
+<footer class="tray" id="tray" hidden></footer>
+<div class="pv" id="pv" hidden role="dialog" aria-label="放大预览"></div>
+<div class="toast" id="toast" hidden role="status"></div>
+<script src="wall.js"></script>
+</body>
+</html>
