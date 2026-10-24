@@ -7,8 +7,8 @@
   <key>CFBundleIdentifier</key><string>com.song.iphone_photos.helper</string>
   <key>CFBundleName</key><string>iPhone Photos Helper</string>
   <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>0.2.1</string>
-  <key>CFBundleVersion</key><string>3</string>
+  <key>CFBundleShortVersionString</key><string>0.2.2</string>
+  <key>CFBundleVersion</key><string>4</string>
   <key>LSMinimumSystemVersion</key><string>12.0</string>
   <key>LSBackgroundOnly</key><true/>
   <key>NSDownloadsFolderUsageDescription</key><string>iPhone Photos saves the photos you export to Downloads. iPhone 照片把你导出的照片保存到“下载”文件夹。</string>

@@ -1,5 +1,16 @@
 # Changelog / 更新记录
 
+## v0.2.2-beta — 2026-10-24（branch `swift-helper`）
+
+- Extension: new preview in the style of the Photos app and Quick Look: dark backdrop, slim top toolbar
+  (close, title and date, info, select), arrows that appear on hover, info panel on demand (button or I key).
+  Unknown sizes are hidden instead of showing "—". This change had only been made locally and never reached the repo.
+  插件：仿“照片”App 和快速查看的新预览层：深色背景、顶部细工具栏（关闭、标题和日期、信息、选择）、
+  悬停才出现的左右箭头、按需浮出的信息面板（按钮或 I 键）。拿不到的尺寸不再显示“—”。这个改动之前只在本地，没进仓库。
+- The download package now includes the extension; it is named `iphone-photos-vX.Y.Z.zip`.
+  Extension and helper share one version number.
+  下载包里带上了插件，改名为 `iphone-photos-vX.Y.Z.zip`；插件和读取助手用同一个版本号。
+
 ## v0.2.1-beta — 2026-10-24（branch `swift-helper`）
 
 - Fix: right after plugging in, the iPhone reports "locked" for a moment and opening the session fails with

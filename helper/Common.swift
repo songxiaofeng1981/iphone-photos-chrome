@@ -5,7 +5,7 @@ import Foundation
 import ImageIO
 import UniformTypeIdentifiers
 
-let helperVersion = "0.2.1"
+let helperVersion = "0.2.2"
 let allowedExtensionIDs: Set<String> = ["endldjnpicempoibdmlndkiinmmekggn"]
 let appName = "iPhonePhotosHelper"
 let fm = FileManager.default
