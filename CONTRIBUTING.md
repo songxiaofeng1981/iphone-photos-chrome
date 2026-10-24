@@ -17,8 +17,11 @@ The log contains file names from your camera roll (for example `IMG_1234.HEIC`) 
 
 ## Development setup / 开发环境
 
+Needs the Xcode Command Line Tools (`xcode-select --install`). Work on `main`.
+需要 Xcode 命令行工具（`xcode-select --install`）。在 `main` 分支上开发。
+
 ```bash
-bash install.sh          # creates the venv and registers the helper / 建环境并注册读取助手
+bash install.sh          # builds the Swift helper from source and registers it / 从源码编译 Swift 助手并注册
 ```
 
 Then load `extension/` in `chrome://extensions` (Developer mode → Load unpacked).
@@ -28,16 +31,29 @@ Where things live after install / 安装后的位置：
 
 | What / 内容 | Path / 路径 |
 |---|---|
-| Installed helper / 已安装的读取助手 | `~/Library/Application Support/iPhonePhotosHelper/host.py` |
-| Python venv | `~/Library/Application Support/iPhonePhotosHelper/venv` |
+| Installed helper / 已安装的读取助手 | `~/Library/Application Support/iPhonePhotosHelper/iPhonePhotosHelper.app` |
 | Cache / 缓存 | `~/Library/Caches/iPhonePhotosHelper` |
 | Log / 日志 | `~/Library/Logs/iPhonePhotosHelper.log` |
 
-**After editing `helper/host.py`**, run `bash install.sh` again so the installed copy is updated, then reload the photo page.
+**After editing `helper/*.swift`**, run `bash install.sh` again, then close and reopen the photo page.
 **After editing anything in `extension/`**, click the reload icon on the extension card in `chrome://extensions`, then reload the photo page.
 
-**改了 `helper/host.py` 之后**，重新运行 `bash install.sh` 更新已安装的副本，再刷新照片页。
+**改了 `helper/*.swift` 之后**，重新运行 `bash install.sh`，再关掉照片页重新打开。
 **改了 `extension/` 里的文件之后**，在 `chrome://extensions` 的插件卡片上点刷新图标，再刷新照片页。
+
+`helper/host.py` is the old Python helper (v0.1), kept for reference only. / `helper/host.py` 是旧的 Python 版（v0.1），只留作参考。
+
+## Tests / 测试
+
+```bash
+bash helper/build.sh
+BIN=helper/build/iPhonePhotosHelper.app/Contents/MacOS/iphone-photos-helper
+HOME=$(mktemp -d) python3 dev/protocol_test.py $BIN                         # no phone / 不插手机
+HOME=$(mktemp -d) python3 dev/protocol_test.py $BIN --mock /tmp/mockphone   # mock phone / 模拟手机
+```
+
+Use a temporary `HOME` so exports and caches stay out of your real home folder.
+用临时 `HOME`，导出和缓存就不会写进你真正的用户目录。
 
 ## Working without an iPhone / 没有 iPhone 也能开发
 
@@ -45,11 +61,10 @@ The helper can read a local folder instead of a phone.
 读取助手可以读取一个本地文件夹来代替手机。
 
 ```bash
-PY="$HOME/Library/Application Support/iPhonePhotosHelper/venv/bin/python"
-"$PY" dev/make_mock_phone.py /tmp/mockphone        # fake camera roll / 生成模拟相机胶卷
+python3 dev/make_mock_phone.py /tmp/mockphone   # fake camera roll; needs Pillow, pillow-heif, av / 生成模拟相机胶卷，需要 Pillow、pillow-heif、av
 
 # Command line / 命令行：
-"$PY" helper/host.py --selftest --mock /tmp/mockphone
+helper/build/iPhonePhotosHelper.app/Contents/MacOS/iphone-photos-helper --selftest --mock /tmp/mockphone
 
 # In Chrome / 在 Chrome 里：the helper launched by Chrome reads this file
 # Chrome 启动的读取助手会读取这个文件
@@ -60,10 +75,10 @@ rm "$HOME/Library/Application Support/iPhonePhotosHelper/mock_dir"
 
 ## Ground rules / 基本原则
 
-1. **Never write to or delete from the phone.** Don't import or call pymobiledevice3's write/delete APIs. Clean-up features produce suggestions only.
-   **永远不写入、不删除手机上的东西。** 不要引入或调用 pymobiledevice3 的写入、删除接口。整理类功能只给建议。
-2. **Nothing goes to stdout in the helper** except protocol messages. `sys.stdout` is redirected to stderr on purpose; log with `logging`.
-   **读取助手的 stdout 只能输出协议消息。** `sys.stdout` 是故意重定向到 stderr 的；输出信息请用 `logging`。
+1. **Never write to or delete from the phone.** Never call ImageCaptureCore's delete APIs or download options such as `ICDeleteAfterSuccessfulDownload`. Clean-up features produce suggestions only.
+   **永远不写入、不删除手机上的东西。** 不要调用 ImageCaptureCore 的删除接口，也不要用 `ICDeleteAfterSuccessfulDownload` 这类下载选项。整理类功能只给建议。
+2. **Nothing goes to stdout in the helper** except protocol messages. Don't `print` outside `--selftest`; log with `log()` from `Common.swift`.
+   **读取助手的 stdout 只能输出协议消息。** 除了 `--selftest`，不要用 `print`；输出信息请用 `Common.swift` 里的 `log()`。
 3. **Keep the first screen fast.** If a change reads more from the phone before the first thumbnails appear, explain why in the PR, with `selftest.sh` numbers before and after.
    **保持首屏快。** 如果改动让首屏出图前多读了手机上的数据，请在 PR 里说明原因，并附上改动前后的 `selftest.sh` 数据。
 4. **No network calls** from the helper or the extension without discussing it in an issue first.

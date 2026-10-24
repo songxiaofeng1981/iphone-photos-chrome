@@ -60,7 +60,7 @@ const S = {
   items: [], byId: new Map(), cursor: null, done: false, loading: false, sawOlder: false, gen: 0,
   sel: new Set(), last: null, lastTap: {},
   thumbs: new Map(), meta: new Map(), requested: new Set(), visible: new Set(), queue: [], active: 0,
-  groups: new Map(), t0: 0, firstShown: false, exporting: false, pvId: null, previews: new Map(), pollTimer: null,
+  groups: new Map(), t0: 0, firstShown: false, exporting: false, pvId: null, pvInfo: false, previews: new Map(), pollTimer: null,
 };
 const today = () => dayKey(Date.now());
 const shown = it => S.mode === 'all' || dayKey(it.t) === today();
@@ -464,6 +464,14 @@ function toast(html, isErr, action) {
 }
 
 /* ------------------------------------------------------------ preview */
+const svg = d => `<svg viewBox="0 0 16 16" aria-hidden="true">${d}</svg>`;
+const ICON = {
+  close: svg('<path d="M4 4l8 8M12 4l-8 8"/>'),
+  info: svg('<circle cx="8" cy="8" r="6.3"/><path d="M8 7.3v4"/><circle cx="8" cy="4.9" r=".5" fill="currentColor"/>'),
+  check: svg('<path d="M3.5 8.3l3 3 6-6.6"/>'),
+  prev: svg('<path d="M10 3.5L5.5 8l4.5 4.5"/>'),
+  next: svg('<path d="M6 3.5L10.5 8 6 12.5"/>'),
+};
 function openPv(id) { S.pvId = id; drawPv(); }
 function closePv() { S.pvId = null; $('#pv').hidden = true; $('#pv').innerHTML = ''; }
 function stepPv(k) {
@@ -479,22 +487,28 @@ function drawPv() {
   const on = S.sel.has(id);
   const low = S.thumbs.get(id) || '';
   const pv = $('#pv');
-  const dims = meta.w && meta.h ? `${meta.w} × ${meta.h}` : '—';
-  const taken = meta.taken ? meta.taken.replace(/^(\d{4}):(\d{2}):(\d{2})/, '$1-$2-$3') : `${dayKey(it.t)} ${hhmm(it.t)}`;
-  const hint = it.kind === 'video' ? '视频这一版只显示第一帧，导出时是原始文件。'
-    : (it.ext === 'HEIC' ? '大图是读取助手临时转成 JPEG 显示的，导出时仍是原始 HEIC。' : '导出时保持原始文件。');
-  pv.innerHTML = `<div class="stage">
-      <img id="pvImg" class="${S.previews.has(id) ? '' : 'low'}" src="${S.previews.get(id) || low}" alt="${esc(it.name)}">
-      <button class="arrow l" data-pv="-1" aria-label="上一张">‹</button><button class="arrow r" data-pv="1" aria-label="下一张">›</button>
+  const m = /^(\d{4}):(\d{2}):(\d{2}) (\d{2}:\d{2})(:\d{2})?/.exec(meta.taken || '');
+  const d = new Date(it.t);
+  const [y, mo, da, hm, sec] = m ? [m[1], +m[2], +m[3], m[4], m[5] || ''] : [d.getFullYear(), d.getMonth() + 1, d.getDate(), hhmm(it.t), ''];
+  const takenShort = `${y}年${mo}月${da}日 ${hm}`;
+  const hint = it.kind === 'video' ? '视频这一版只显示第一帧，导出的是原始文件。'
+    : (it.ext === 'HEIC' ? '这里显示的是临时转换的 JPEG，导出的仍是原始 HEIC。' : '');
+  pv.innerHTML = `<div class="pv-bar">
+      <button class="pv-btn" data-pvclose aria-label="关闭" title="关闭（Esc）">${ICON.close}</button>
+      <div class="pv-title"><strong>${esc(it.name)}</strong><small>${takenShort}${it.live ? ' · 实况' : ''}</small></div>
+      <button class="pv-btn" data-pvinfo aria-pressed="${S.pvInfo}" aria-label="信息" title="信息（I）">${ICON.info}</button>
+      <button class="pv-sel" data-pvsel aria-pressed="${on}" title="选择（空格）"><i>${ICON.check}</i><span>${on ? '已选择' : '选择'}</span></button>
     </div>
-    <aside><h4>${esc(it.name)}</h4>
-      <dl><dt>拍摄</dt><dd>${esc(taken)}</dd><dt>格式</dt><dd>${esc(it.ext)}${it.live ? '（实况）' : ''}</dd>
-      <dt>尺寸</dt><dd>${dims}</dd><dt>大小</dt><dd>${mb(it.size)} MB</dd>
+    <div class="stage">
+      <img id="pvImg" class="${S.previews.has(id) ? '' : 'low'}" src="${S.previews.get(id) || low}" alt="${esc(it.name)}">
+      <button class="arrow l" data-pv="-1" aria-label="上一张" title="上一张（←）">${ICON.prev}</button>
+      <button class="arrow r" data-pv="1" aria-label="下一张" title="下一张（→）">${ICON.next}</button>
+    </div>
+    <aside class="pv-info"${S.pvInfo ? '' : ' hidden'}>
+      <dl><dt>拍摄</dt><dd>${takenShort}${sec}</dd><dt>格式</dt><dd>${esc(it.ext)}${it.live ? ' + 实况视频' : ''}</dd>
+      ${meta.w && meta.h ? `<dt>尺寸</dt><dd>${meta.w} × ${meta.h}</dd>` : ''}<dt>大小</dt><dd>${mb(it.size)} MB</dd>
       ${it.live ? `<dt>配对</dt><dd>${esc(it.liveName)}</dd>` : ''}</dl>
-      <div class="hint">${hint}</div>
-      <button class="${on ? 'ghost' : 'primary'}" data-pvsel>${on ? '取消选择' : '选中这张'}</button>
-      <button class="ghost" data-pvclose>关闭</button>
-      <div class="keys">← → 切换，空格选择，Esc 关闭</div></aside>`;
+      ${hint ? `<p>${hint}</p>` : ''}</aside>`;
   pv.hidden = false;
   if (!S.previews.has(id)) {
     host.call('preview', { id }).then(r => {
@@ -510,11 +524,13 @@ $('#pv').addEventListener('click', e => {
   const a = e.target.closest('[data-pv]');
   if (a) { stepPv(+a.dataset.pv); return; }
   if (e.target.closest('[data-pvsel]')) { toggle(S.pvId, false); drawPv(); return; }
+  if (e.target.closest('[data-pvinfo]')) { S.pvInfo = !S.pvInfo; drawPv(); return; }
   if (e.target.closest('[data-pvclose]') || e.target.classList.contains('stage') || e.target === $('#pv')) closePv();
 });
 document.addEventListener('keydown', e => {
   if (!S.pvId) return;
   if (e.key === 'Escape') closePv();
+  else if (e.key === 'i' || e.key === 'I') { S.pvInfo = !S.pvInfo; drawPv(); }
   else if (e.key === 'ArrowRight') stepPv(1);
   else if (e.key === 'ArrowLeft') stepPv(-1);
   else if (e.key === ' ') { e.preventDefault(); toggle(S.pvId, false); drawPv(); }

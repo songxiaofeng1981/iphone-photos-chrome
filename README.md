@@ -9,7 +9,7 @@ No iCloud. No syncing your whole library. No Photos app. Nothing running in the 
 ![Photo wall](docs/images/wall.png)
 <sub>Screenshot from the built-in mock device. The colored blocks stand in for real photos.</sub>
 
-> **Status:** v0.1. It works, but it is early. macOS and Google Chrome only. The interface is in Chinese for now.
+> **Status:** v0.2 (pre-release **v0.2.2-beta**): the helper is now written in Swift and no longer needs Python. Still being tested on real iPhones. macOS 12+ and Google Chrome only. The interface is in Chinese for now. The old Python version is tagged `python-helper-final` (v0.1.0).
 
 ---
 
@@ -42,41 +42,32 @@ So this project does one thing: **plug in → see today's photos → pick → ex
 
 ## Install (no coding needed)
 
-You need: a Mac, Google Chrome, an iPhone, and a cable. Allow about 5 minutes the first time.
+You need: a Mac (macOS 12 or later), Google Chrome, an iPhone, and a cable. No Python, Homebrew or admin password, and the installer does not use the network.
 
-### Step 1: Install Python (once)
+### Step 1: Download
 
-The installer needs Python 3.10 or newer. The Python that comes with macOS is too old.
+Open the [v0.2.2-beta](https://github.com/songxiaofeng1981/iphone-photos-chrome/releases/tag/v0.2.2-beta) page, download `iphone-photos-v0.2.2.zip`, and double-click it to unzip.
 
-1. Go to [python.org/downloads/macos](https://www.python.org/downloads/macos/) and download the latest **macOS 64-bit universal2 installer**.
-2. Double-click it and click through the installer.
-
-Already have Python 3.10+? Skip this step. To check, open Terminal and type `python3 --version`.
-
-### Step 2: Download this project
-
-Go to the [Releases](https://github.com/songxiaofeng1981/iphone-photos-chrome/releases/latest) page, download `iphone-photos-chrome-v0.1.0.zip`, and double-click it to unzip.
-
-### Step 3: Run the installer
+### Step 2: Install the helper
 
 1. Open **Terminal** (press `⌘ Space`, type *Terminal*, press Return).
-2. Type `cd ` (with a space after it), drag the unzipped folder into the Terminal window, and press Return.
-3. Type `bash install.sh` and press Return.
+2. Type `bash ` (with a space after it), drag `install.sh` from the unzipped folder into the Terminal window, and press Return.
 
-It takes a minute or two the first time. When it finishes it prints "安装完成" (installation complete) and the next steps.
+It takes a few seconds and prints "Done!".
 
-> If macOS asks whether Terminal may access your Downloads folder, click **Allow**.
+### Step 3: Add the extension to Chrome
 
-### Step 4: Add the extension to Chrome
+Chrome loads the extension straight from a folder, and **that folder must stay where it is**. First move the unzipped `extension` folder somewhere permanent, for example into Documents.
 
 1. In Chrome, open `chrome://extensions`.
 2. Turn on **Developer mode** (top right).
-3. Click **Load unpacked** and choose the `extension` folder inside the project folder.
-4. Click the puzzle-piece icon in the toolbar and pin **iPhone 照片**.
+3. Click **Load unpacked** and choose that `extension` folder.
+4. Check that the extension ID is `endldjnpicempoibdmlndkiinmmekggn`.
+5. Click the puzzle-piece icon in the toolbar and pin **iPhone 照片**.
 
 Developer mode is needed because the extension is not in the Chrome Web Store yet. Chrome may occasionally remind you that a developer-mode extension is installed. That is expected.
 
-### Step 5: Plug in your iPhone
+### Step 4: Plug in your iPhone
 
 1. Connect the iPhone with a cable and unlock it.
 2. Click the extension icon.
@@ -111,26 +102,27 @@ Exporting the same photos twice does not create duplicates. Files that are alrea
 
 | What you see | What to do |
 |---|---|
-| "还差一步：安装读取助手" (helper not installed) | Run `bash install.sh` (Step 3). If you already did, check that the extension ID in `chrome://extensions` is `endldjnpicempoibdmlndkiinmmekggn`. |
-| Stuck on "在 iPhone 上点信任" (tap Trust) | Unlock the phone and look for the Trust prompt. |
+| "还差一步：安装读取助手" (helper not installed) | Run `bash install.sh` (Step 2). If you already did, check that the extension ID in `chrome://extensions` is `endldjnpicempoibdmlndkiinmmekggn`. |
+| Stuck on "请解锁 iPhone" (unlock your iPhone) | Unlock the phone and look for the "Trust This Computer?" prompt. |
 | You tapped "Don't Trust" by mistake | Unplug and plug the cable back in. If the prompt doesn't come back: on the iPhone, go to Settings → General → Transfer or Reset iPhone → Reset → **Reset Location & Privacy**, then reconnect. |
 | "读取助手意外退出" (helper crashed) | Open an [issue](https://github.com/songxiaofeng1981/iphone-photos-chrome/issues/new/choose) and attach the log file `~/Library/Logs/iPhonePhotosHelper.log`. |
-| The installer says Python 3.10+ not found | Do Step 1, then run `bash install.sh` again. |
+| You had v0.1 (the Python helper) | Just run the new `install.sh` over it. To delete the old Python files: `bash install.sh --remove-python`. |
 
-To test the connection without Chrome, plug in the phone and run `bash selftest.sh` in the project folder. It prints how long each step takes.
+To test the connection without Chrome, plug in the phone and run `bash selftest.sh`. It prints how long each step takes, plus the camera, lens and other details of a few photos.
 
 ## Known limitations
 
 - **Only macOS and Google Chrome have been tested.** Other Chromium browsers may work but are not set up by the installer.
 - **Edits made on the phone are probably not included.** The camera roll stores the original shot, and Photos keeps edits such as crops and filters separately. This has not been fully verified yet.
 - **iCloud "Optimize iPhone Storage":** older photos whose full versions live only in iCloud may not appear.
-- **Videos** show only their first frame. Videos over 60 MB get no thumbnail. Portrait videos may show a sideways thumbnail.
-- **"Newest first" is decided by folder name** (`100APPLE`, `101APPLE`, …). If your newest photos don't show up first, please open an issue.
+- **Videos** show a single frame provided by the phone.
+- **Whether HEIC stays HEIC is not verified yet.** v0.2 uses Apple's camera protocol; with the iPhone's Settings → Photos → Transfer to Mac or PC set to "Automatic", photos may arrive as JPEG. If exports are not HEIC, choose "Keep Originals".
+- **The whole photo catalog is read before the first page shows**, so the first screen may be slower than v0.1 on large libraries.
 - The interface is Chinese-only for now.
 
 ## Uninstall
 
-1. In the project folder, run `bash uninstall.sh`. It removes the helper, its cache, and its log. Your exported photos are not touched.
+1. In the downloaded folder, run `bash uninstall.sh`. It removes the helper, its cache, and its log. Your exported photos are not touched.
 2. Remove the extension in `chrome://extensions`.
 
 ## How it works
@@ -139,13 +131,13 @@ To test the connection without Chrome, plug in the phone and run `bash selftest.
 Chrome tab (extension page)
    │  Chrome Native Messaging
    ▼
-Helper (Python, runs only while the tab is open)
-   │  usbmuxd + AFC, via pymobiledevice3
+Helper (small Swift program, runs only while the tab is open)
+   │  Apple ImageCaptureCore (the framework behind Image Capture)
    ▼
-iPhone camera roll (/DCIM), read-only
+iPhone camera roll, read-only
 ```
 
-The full reasoning is in [docs/DESIGN.md](docs/DESIGN.md): why a browser tab, why AFC instead of Apple's Image Capture framework, how the first screen is kept fast, and what is planned next.
+The full reasoning is in [docs/DESIGN.md](docs/DESIGN.md): why a browser tab, why v0.1 used AFC and v0.2 moved to ImageCaptureCore, how the first screen is kept fast, and what is planned next. Notes for AI assistants and developers are in [AGENTS.md](AGENTS.md).
 
 ## Questions, bugs, ideas
 

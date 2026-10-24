@@ -70,6 +70,13 @@ The helper is registered as a Chrome Native Messaging host. Chrome starts it whe
 
 ### 3.3 AFC instead of Apple's ImageCaptureCore
 
+> **Update for v0.2 (branch `swift-helper`): this decision was reversed.** Requiring Python 3.10+ (and pip downloads)
+> made the helper impossible to install on Macs where users cannot install software. v0.2 is a Swift helper built on
+> ImageCaptureCore, which ships with macOS: nothing to install, no network. The costs described below are real and are
+> being measured on real iPhones: the whole catalog is read before the first page (slower first screen on large
+> libraries), and the iPhone's "Transfer to Mac or PC: Automatic" setting may turn HEIC into JPEG. The v0.1 reasoning
+> below is kept as the record of why AFC was chosen first. See `AGENTS.md` for the current state.
+
 This was the most important choice.
 
 ImageCaptureCore is the official framework behind Image Capture. It can enumerate photos and fetch thumbnails on demand. However, **it decides the order in which it catalogs the camera roll**, and that order cannot be controlled. If it catalogs oldest first, today's photos arrive last, and the first screen is slow exactly when you want it fast.

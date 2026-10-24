@@ -9,7 +9,7 @@
 ![照片墙](docs/images/wall.png)
 <sub>截图来自内置的模拟设备，彩色方块代替真实照片。</sub>
 
-> **当前状态**：v0.1，能用，但还很早期。只支持 macOS + Google Chrome，界面目前只有中文。
+> **当前状态**：v0.2（预发布版 **v0.2.2-beta**）：读取助手改用 Swift，不再需要 Python。还在真机测试中。只支持 macOS 12+ 和 Google Chrome，界面目前只有中文。旧的 Python 版见标签 `python-helper-final`（v0.1.0）。
 
 ---
 
@@ -42,41 +42,32 @@
 
 ## 安装（不需要会编程）
 
-需要：一台 Mac、Google Chrome、一部 iPhone、一根数据线。第一次装大约 5 分钟。
+需要：一台 Mac（macOS 12 或更新）、Google Chrome、一部 iPhone、一根数据线。不需要 Python、Homebrew 或管理员密码，安装时也不联网。
 
-### 第 1 步：安装 Python（只需一次）
+### 第 1 步：下载
 
-安装程序需要 Python 3.10 或更高版本，macOS 自带的版本太旧。
+打开 [v0.2.2-beta](https://github.com/songxiaofeng1981/iphone-photos-chrome/releases/tag/v0.2.2-beta) 页面，下载 `iphone-photos-v0.2.2.zip`，双击解压。
 
-1. 打开 [python.org/downloads/macos](https://www.python.org/downloads/macos/)，下载最新的 **macOS 64-bit universal2 installer**。
-2. 双击，按提示一路点完。
-
-已经有 Python 3.10 以上？跳过这一步。检查方法：打开“终端”，输入 `python3 --version`。
-
-### 第 2 步：下载本项目
-
-打开 [Releases](https://github.com/songxiaofeng1981/iphone-photos-chrome/releases/latest) 页面，下载 `iphone-photos-chrome-v0.1.0.zip`，双击解压。
-
-### 第 3 步：运行安装程序
+### 第 2 步：安装读取助手
 
 1. 打开 **“终端”**（按 `⌘ 空格`，输入“终端”，回车）。
-2. 输入 `cd `（后面带一个空格），把解压出来的文件夹拖进终端窗口，回车。
-3. 输入 `bash install.sh`，回车。
+2. 输入 `bash `（后面带一个空格），把解压出来的文件夹里的 `install.sh` 拖进终端窗口，回车。
 
-第一次需要一两分钟。看到“安装完成”和后续步骤，就是装好了。
+几秒钟就装好，看到“完成！”即可。
 
-> 如果 macOS 问“终端想访问‘下载’文件夹”，点 **允许**。
+### 第 3 步：把插件加到 Chrome
 
-### 第 4 步：把插件加到 Chrome
+Chrome 直接从文件夹加载插件，**这个文件夹以后不能删、不能挪**。先把解压出来的 `extension` 文件夹放到一个固定的地方，比如“文稿”里。
 
 1. 在 Chrome 地址栏打开 `chrome://extensions`。
 2. 打开右上角的 **开发者模式**。
-3. 点 **加载已解压的扩展程序**，选择项目文件夹里的 `extension` 文件夹。
-4. 点工具栏的拼图图标，把 **iPhone 照片** 固定到工具栏。
+3. 点 **加载已解压的扩展程序**，选择放好的 `extension` 文件夹。
+4. 确认插件 ID 是 `endldjnpicempoibdmlndkiinmmekggn`。
+5. 点工具栏的拼图图标，把 **iPhone 照片** 固定到工具栏。
 
 需要开发者模式，是因为插件还没上架 Chrome 网上应用店。Chrome 偶尔会提醒你装了开发者模式的扩展，这是正常的。
 
-### 第 5 步：插上 iPhone
+### 第 4 步：插上 iPhone
 
 1. 用数据线连接 iPhone，并解锁。
 2. 点插件图标。
@@ -111,26 +102,27 @@
 
 | 看到什么 | 怎么办 |
 |---|---|
-| “还差一步：安装读取助手” | 运行 `bash install.sh`（第 3 步）。如果已经运行过，到 `chrome://extensions` 核对插件 ID 是否为 `endldjnpicempoibdmlndkiinmmekggn`。 |
-| 一直停在“在 iPhone 上点信任” | 解锁手机，看有没有信任弹窗。 |
+| “还差一步：安装读取助手” | 运行 `bash install.sh`（第 2 步）。如果已经运行过，到 `chrome://extensions` 核对插件 ID 是否为 `endldjnpicempoibdmlndkiinmmekggn`。 |
+| 一直停在“请解锁 iPhone” | 解锁手机，看有没有“信任此电脑”弹窗。 |
 | 不小心点了“不信任” | 拔线再插。如果不再弹出：iPhone 设置 → 通用 → 传输或还原 iPhone → 还原 → **还原位置与隐私**，然后重新连接。 |
 | “读取助手意外退出” | [提一个 issue](https://github.com/songxiaofeng1981/iphone-photos-chrome/issues/new/choose)，附上日志 `~/Library/Logs/iPhonePhotosHelper.log`。 |
-| 安装时提示找不到 Python 3.10+ | 先做第 1 步，再重新运行 `bash install.sh`。 |
+| 装过 v0.1（Python 版） | 直接运行新的 `install.sh` 覆盖即可。想删掉旧的 Python 文件：`bash install.sh --remove-python`。 |
 
-不想开 Chrome、只想测连接：插上手机，在项目文件夹里运行 `bash selftest.sh`，它会打印每一步用了多久。
+不想开 Chrome、只想测连接：插上手机，运行 `bash selftest.sh`，它会打印每一步用了多久，以及几张照片的机型、镜头等信息。
 
 ## 已知限制
 
 - **只在 macOS + Google Chrome 上测试过**。其他 Chromium 浏览器可能能用，但安装程序没有为它们做配置。
 - **手机上做过的编辑大概率不会带出来**。相机胶卷里存的是原片，裁剪、滤镜等编辑由“照片”App 另外保存。这一点还没有完全验证。
 - **开了 iCloud“优化 iPhone 储存空间”**：完整版本只在 iCloud 上的旧照片可能不显示。
-- **视频**只显示第一帧；超过 60 MB 的视频没有缩略图；竖拍视频的缩略图可能是横的。
-- **“最新优先”是按文件夹名判断的**（`100APPLE`、`101APPLE`……）。如果最新的照片没排在最前面，请提 issue。
+- **视频**只显示手机提供的一帧画面。
+- **HEIC 是否保持原格式还没验证**：v0.2 走苹果的相机协议，iPhone“设置 → 照片 → 传输到 Mac 或 PC”设为“自动”时，可能会转成 JPEG。如果导出的不是 HEIC，可以改成“保留原片”。
+- **照片目录要先全部列完**才显示第一页，照片很多时首屏可能比 v0.1 慢。
 - 界面目前只有中文。
 
 ## 卸载
 
-1. 在项目文件夹里运行 `bash uninstall.sh`。它会删除读取助手、缓存和日志，已经导出的照片不受影响。
+1. 在下载包的文件夹里运行 `bash uninstall.sh`。它会删除读取助手、缓存和日志，已经导出的照片不受影响。
 2. 到 `chrome://extensions` 移除插件。
 
 ## 工作原理
@@ -139,13 +131,13 @@
 Chrome 标签页（插件页面）
    │  Chrome Native Messaging
    ▼
-读取助手（Python，只在标签页打开时运行）
-   │  usbmuxd + AFC，基于 pymobiledevice3
+读取助手（Swift 小程序，只在标签页打开时运行）
+   │  苹果 ImageCaptureCore（“图像捕捉”用的框架）
    ▼
-iPhone 相机胶卷（/DCIM），只读
+iPhone 相机胶卷，只读
 ```
 
-完整的设计思路见 [docs/DESIGN.zh-CN.md](docs/DESIGN.zh-CN.md)：为什么放在浏览器标签页里，为什么用 AFC 而不是苹果的“图像捕捉”框架，首屏是怎么做快的，以及后续计划。
+完整的设计思路见 [docs/DESIGN.zh-CN.md](docs/DESIGN.zh-CN.md)：为什么放在浏览器标签页里，v0.1 为什么用 AFC、v0.2 为什么改用 ImageCaptureCore，首屏是怎么做快的，以及后续计划。给 AI 和开发者的项目说明见 [AGENTS.md](AGENTS.md)。
 
 ## 提问、报 bug、提想法
 
