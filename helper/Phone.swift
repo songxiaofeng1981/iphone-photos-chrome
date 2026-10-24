@@ -48,7 +48,9 @@ final class PhoneSource: NSObject, PhotoSource, ICDeviceBrowserDelegate, ICCamer
         return onMain {
             guard let cam = camera else { return ["state": "nodevice"] }
             if cam.isAccessRestrictedAppleDevice { return ["state": "locked"] }
-            if let err = sessionError { return ["state": "error", "message": err] }
+            // A finished catalog means the phone is readable, whatever an earlier attempt said.
+            // 目录已经列完就说明能读，不管之前的尝试报过什么错。
+            if !catalogDone, let err = sessionError { return ["state": "error", "message": err] }
             return ["state": "ready", "serial": cam.persistentIDString ?? cam.serialNumberString ?? cam.name ?? "camera",
                     "name": cam.name ?? "iPhone", "model": cam.productKind ?? "", "ios": "-"]
         }
@@ -153,14 +155,22 @@ final class PhoneSource: NSObject, PhotoSource, ICDeviceBrowserDelegate, ICCamer
         camera = cam
         sessionOpen = false; sessionError = nil; catalogDone = false
         cam.delegate = self
+        openSession(cam)
+    }
+
+    /// The phone often reports "locked" for a moment right after it is plugged in, and opening the session then
+    /// fails with -9943 "Please unlock". That is not an error: wait for the unlock and open again.
+    /// 手机刚插上时常会短暂报告“已锁定”，这时打开会话会失败（-9943“请解锁”）。这不算出错：等解锁后再打开一次。
+    private func openSession(_ cam: ICCameraDevice) {
         cam.requestOpenSession(options: [:]) { error in
             DispatchQueue.main.async {
                 guard self.camera === cam else { return }
                 if let error {
-                    self.sessionError = error.localizedDescription
-                    log("open session failed: \(error)", "WARNING")
+                    let locked = (error as NSError).code == -9943 || cam.isAccessRestrictedAppleDevice
+                    self.sessionError = locked ? nil : error.localizedDescription
+                    log("open session failed\(locked ? " (locked, will retry after unlock)" : ""): \(error)", "WARNING")
                 } else {
-                    self.sessionOpen = true
+                    self.sessionOpen = true; self.sessionError = nil
                     log("session open: \(cam.name ?? "?")")
                 }
             }
@@ -188,7 +198,7 @@ final class PhoneSource: NSObject, PhotoSource, ICDeviceBrowserDelegate, ICCamer
 
     func deviceDidBecomeReady(withCompleteContentCatalog device: ICCameraDevice) {
         guard device === camera else { return }
-        catalogDone = true
+        catalogDone = true; sessionOpen = true; sessionError = nil
         log("catalog complete: \(device.mediaFiles?.count ?? 0) files")
     }
     func cameraDevice(_ camera: ICCameraDevice, didAdd items: [ICCameraItem]) {}
@@ -198,7 +208,17 @@ final class PhoneSource: NSObject, PhotoSource, ICDeviceBrowserDelegate, ICCamer
     func cameraDevice(_ camera: ICCameraDevice, didRenameItems items: [ICCameraItem]) {}
     func cameraDeviceDidChangeCapability(_ camera: ICCameraDevice) {}
     func cameraDevice(_ camera: ICCameraDevice, didReceivePTPEvent eventData: Data) {}
-    func cameraDeviceDidRemoveAccessRestriction(_ device: ICDevice) { log("access restriction removed (unlocked)") }
+    func cameraDeviceDidRemoveAccessRestriction(_ device: ICDevice) {
+        log("access restriction removed (unlocked)")
+        guard let cam = camera, device === cam else { return }
+        sessionError = nil
+        // If the earlier open failed because the phone was locked, try again now. / 之前因锁屏没打开会话的，现在重试。
+        if !sessionOpen && !catalogDone {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                if self.camera === cam && !self.sessionOpen && !self.catalogDone { self.openSession(cam) }
+            }
+        }
+    }
     func cameraDeviceDidEnableAccessRestriction(_ device: ICDevice) { log("access restriction enabled (locked)") }
 
     // MARK: - Self test extras / 自测附加信息

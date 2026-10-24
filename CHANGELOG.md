@@ -1,6 +1,14 @@
 # Changelog / 更新记录
 
-## v0.2.0 — unreleased / 未发布（branch `swift-helper`）
+## v0.2.1-beta — 2026-10-24（branch `swift-helper`）
+
+- Fix: right after plugging in, the iPhone reports "locked" for a moment and opening the session fails with
+  -9943 "Please unlock". The helper kept that error even after the phone unlocked and its photos were listed,
+  so the page stayed on "connection error". Now it waits for the unlock, retries, and trusts a finished catalog.
+  修复：手机刚插上时会短暂报告“已锁定”，打开会话失败（-9943“请解锁”）。助手一直记着这个错误，
+  手机解锁、照片目录也列完了，页面还停在“连接出错”。现在会等解锁后重试，目录列完就以它为准。
+
+## v0.2.0-beta — 2026-10-24（branch `swift-helper`）
 
 - New helper in Swift on Apple's ImageCaptureCore: nothing to install on the Mac (no Python, Homebrew or admin password),
   and installing needs no network. Same Native Messaging protocol, so the extension is unchanged.
