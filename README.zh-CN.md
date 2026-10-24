@@ -9,7 +9,7 @@
 ![照片墙](docs/images/wall.png)
 <sub>截图来自内置的模拟设备，彩色方块代替真实照片。</sub>
 
-> **当前状态**：这是 `swift-helper` 分支，对应预发布版 **v0.2.2-beta**：读取助手改用 Swift，不再需要 Python。还在真机测试中。只支持 macOS 12+ 和 Google Chrome，界面目前只有中文。稳定版 v0.1.0 在 `main` 分支。
+> **当前状态**：v0.2（预发布版 **v0.2.2-beta**）：读取助手改用 Swift，不再需要 Python。还在真机测试中。只支持 macOS 12+ 和 Google Chrome，界面目前只有中文。旧的 Python 版见标签 `python-helper-final`（v0.1.0）。
 
 ---
 

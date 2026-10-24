@@ -17,8 +17,8 @@ The log contains file names from your camera roll (for example `IMG_1234.HEIC`) 
 
 ## Development setup / 开发环境
 
-Needs the Xcode Command Line Tools (`xcode-select --install`). Work on the `swift-helper` branch.
-需要 Xcode 命令行工具（`xcode-select --install`）。在 `swift-helper` 分支上开发。
+Needs the Xcode Command Line Tools (`xcode-select --install`). Work on `main`.
+需要 Xcode 命令行工具（`xcode-select --install`）。在 `main` 分支上开发。
 
 ```bash
 bash install.sh          # builds the Swift helper from source and registers it / 从源码编译 Swift 助手并注册

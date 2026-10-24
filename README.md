@@ -9,7 +9,7 @@ No iCloud. No syncing your whole library. No Photos app. Nothing running in the 
 ![Photo wall](docs/images/wall.png)
 <sub>Screenshot from the built-in mock device. The colored blocks stand in for real photos.</sub>
 
-> **Status:** this is the `swift-helper` branch, released as the pre-release **v0.2.2-beta**: the helper is now written in Swift and no longer needs Python. Still being tested on real iPhones. macOS 12+ and Google Chrome only. The interface is in Chinese for now. The stable v0.1.0 is on `main`.
+> **Status:** v0.2 (pre-release **v0.2.2-beta**): the helper is now written in Swift and no longer needs Python. Still being tested on real iPhones. macOS 12+ and Google Chrome only. The interface is in Chinese for now. The old Python version is tagged `python-helper-final` (v0.1.0).
 
 ---
 

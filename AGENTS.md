@@ -13,11 +13,12 @@
 
 | 分支 / 标签 | 内容 |
 |---|---|
-| `main`、`v0.1.0`（Latest） | 旧版：Python 读取助手（`helper/host.py` + pymobiledevice3，走 AFC）。需要用户装 Python 3.10+。 |
-| **`swift-helper`**（当前开发分支） | 新版：Swift 读取助手（ImageCaptureCore），不需要 Python。插件带新预览层。 |
-| `v0.2.0-beta` … `v0.2.2-beta` | `swift-helper` 上的预发布版。**v0.2.2-beta 是最新**，下载包 `iphone-photos-v0.2.2.zip` 同时含插件和读取助手。 |
+| **`main`**（当前开发分支） | Swift 读取助手（ImageCaptureCore），不需要 Python；插件带新预览层。2026-10-24 由 `swift-helper` 合并而来。 |
+| `python-helper-final`（里程碑标签，和 `v0.1.0` 同一个提交） | 最后一个 Python 读取助手版本（`helper/host.py` + pymobiledevice3，走 AFC，需要用户装 Python 3.10+）。要看旧实现：`git checkout python-helper-final`。 |
+| `v0.2.0-beta` … `v0.2.2-beta` | 预发布版。**v0.2.2-beta 是最新**，下载包 `iphone-photos-v0.2.2.zip` 同时含插件和读取助手。GitHub 上标为 “Latest” 的仍是 v0.1.0，因为还没发 v0.2 正式版。 |
+| `swift-helper` | 已合并进 `main` 的开发分支，保留作记录，不再在上面开发。 |
 
-`swift-helper` 还没合并进 `main`：要等真机把第 8 节的待验证项测完，并且作者同意。**开工前先确认自己在哪个分支**（`git branch --show-current`），新功能默认在 `swift-helper` 上做。
+**新工作都在 `main` 上做**；开工前先 `git pull`，确认自己在 `main`（`git branch --show-current`）。
 
 ## 3. 目录
 
@@ -85,7 +86,7 @@ bash install.sh                              # 装到本机（会覆盖已安装
 - 测试一定用临时 `HOME`：助手按 `$HOME` 找“下载”、缓存和日志（`Common.swift` 里的 `home`），否则导出测试会写进作者真的“下载”文件夹。
 - Chrome 里用模拟手机：把文件夹路径写进 `~/Library/Application Support/iPhonePhotosHelper/mock_dir`，删掉即回到真机。
 - 测安装脚本：解压下载包，`xattr -rw com.apple.quarantine ...` 模拟“从网上下载”，再用临时 HOME 运行 `install.sh`。
-- 发布：同时改 `extension/manifest.json` 的 version、`helper/Common.swift` 的 `helperVersion`、`helper/Info.plist`（两个版本字段），写 CHANGELOG，`bash scripts/package.sh`，测试，提交推送，`gh release create vX.Y.Z-beta dist/iphone-photos-vX.Y.Z.zip --target swift-helper --prerelease`，再用 curl 下载回来 `cmp` 一遍。
+- 发布：同时改 `extension/manifest.json` 的 version、`helper/Common.swift` 的 `helperVersion`、`helper/Info.plist`（两个版本字段），写 CHANGELOG，`bash scripts/package.sh`，测试，提交推送，`gh release create vX.Y.Z-beta dist/iphone-photos-vX.Y.Z.zip --target main --prerelease`（正式版去掉 `-beta` 和 `--prerelease`），再用 curl 下载回来 `cmp` 一遍。
 
 ## 7. 和作者合作的规矩
 
@@ -113,7 +114,7 @@ bash install.sh                              # 装到本机（会覆盖已安装
 
 - `install.sh` 顺便把插件复制到固定文件夹并把路径放进剪贴板（参考 `~/Projects/image-organizer/install.sh`），省掉手动放文件夹。
 - 智能分类侧边栏（设计不变，分类要多）：拍的（相机拍摄=EXIF Make 为 Apple、HEIC、自拍=前置镜头、实况、全景、视频）、存的（无相机信息的存图、3:4 竖图、长图、修图 App 处理过=EXIF Software）、截的（截屏=PNG 且屏幕分辨率、录屏）、杂的（小图/表情包、动图、可能重复，默认隐藏）、时间、大文件、带位置、还没导出过。“小红书”本身识别不出来。`selftest.sh` 会打印前 5 张的机型/镜头/软件/GPS，先用真机数据校准规则再做。
-- 合并 `swift-helper` 到 `main`，更新 README 截图，正式发布 v0.2.0。
+- 真机验证完第 8 节后：更新 README 截图，发 v0.2.0 正式版（GitHub 的 Latest 才会从 v0.1.0 换过来）。
 
 ## 10. 相关项目
 
